@@ -2,7 +2,8 @@
 
 ![OC20 Brand Logo](public/brand-logo.png)
 
-> **From OC20 UTILITY TOOLS · [OC2O.CO](https://oc2o.co)**
+> **From OC20 UTILITY TOOLS · [OC2O.CO](https://oc2o.co)**  
+> **Live Hosted App**: [https://dbs314.github.io/OC2O-UTILITEY---INFINITY-SHEETS/](https://dbs314.github.io/OC2O-UTILITEY---INFINITY-SHEETS/) (100% Local Browser Data Storage)
 
 **OC2O UTILITEY - INFINITY SHEETS** is an offline-first, Apple VisionOS / macOS inspired infinite whiteboard & sheets workspace engineered for researchers, developers, and AI/LLM workflows.
 
