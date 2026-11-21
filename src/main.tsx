@@ -13,7 +13,7 @@ if ('serviceWorker' in navigator) {
   const isProd = Boolean((import.meta as any).env?.PROD);
   if (isProd) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
     });
   } else {
     navigator.serviceWorker.getRegistrations().then((regs) => {

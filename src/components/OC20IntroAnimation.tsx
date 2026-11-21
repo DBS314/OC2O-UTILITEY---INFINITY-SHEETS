@@ -66,7 +66,7 @@ export const OC20IntroAnimation: React.FC<OC20IntroAnimationProps> = ({
           <div className="absolute -inset-2 rounded-3xl bg-gradient-to-r from-sky-400/30 via-blue-500/25 to-amber-400/30 blur-xl opacity-80" />
           <div className="relative flex items-center justify-center px-6 py-3.5 rounded-2xl bg-white shadow-[0_12px_36px_rgba(14,165,233,0.35)] ring-1 ring-white/80">
             <img
-              src="/brand-logo.png"
+              src="./brand-logo.png"
               alt="OC20 Logo"
               className="h-11 sm:h-12 w-auto object-contain block"
             />

@@ -280,7 +280,7 @@ export const FloatingUI: React.FC<FloatingUIProps> = ({
           className="flex items-center justify-center px-2 py-0.5 rounded-full bg-white shadow-[0_2px_10px_rgba(10,132,255,0.28)] ring-1 ring-white/60 shrink-0 hover:scale-105 transition"
         >
           <img
-            src="/brand-logo.png"
+            src="./brand-logo.png"
             alt="OC20"
             className="h-3.5 w-auto object-contain block"
           />
@@ -798,8 +798,21 @@ export const FloatingUI: React.FC<FloatingUIProps> = ({
         {/* Export / Actions Menu */}
         {isActionsOpen && (
           <div
-            className={`absolute right-0 top-11 w-52 rounded-2xl p-1.5 z-50 text-xs space-y-0.5 ${applePopover}`}
+            className={`absolute right-0 top-11 w-56 rounded-2xl p-1.5 z-50 text-xs space-y-0.5 ${applePopover}`}
           >
+            <div className="px-2.5 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-400/20 text-[10px] text-emerald-300 font-medium mb-1">
+              Local-First Privacy: Sheets save locally on your device. Share via Link, JSON, or HTML.
+            </div>
+            <button
+              onClick={() => {
+                navigator.clipboard?.writeText(window.location.href).catch(() => {});
+                onToggleActions();
+              }}
+              className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-sky-300 hover:bg-[#0A84FF]/15 transition text-left font-semibold"
+            >
+              <Sparkles size={13} />
+              <span>Copy Shareable App Link</span>
+            </button>
             <button
               onClick={onDockBlueSpace}
               className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-[#0A84FF] hover:bg-[#0A84FF]/10 transition text-left font-medium"

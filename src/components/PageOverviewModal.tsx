@@ -146,7 +146,7 @@ export const PageOverviewModal: React.FC<PageOverviewModalProps> = ({
                 className="flex items-center justify-center px-3 py-1.5 rounded-2xl bg-white shadow-[0_6px_22px_rgba(14,165,233,0.35)] ring-1 ring-white/80 hover:scale-105 transition"
               >
                 <img
-                  src="/brand-logo.png"
+                  src="./brand-logo.png"
                   alt="OC20"
                   className="h-6 sm:h-7 w-auto object-contain block"
                 />
@@ -160,6 +160,9 @@ export const PageOverviewModal: React.FC<PageOverviewModalProps> = ({
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-400/15 border border-sky-300/30 text-sky-200 text-[10px] font-semibold">
                     <Snowflake size={10} />
                     <span>Winter Edition</span>
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-400/15 border border-emerald-300/30 text-emerald-200 text-[10px] font-semibold">
+                    <span>100% Local Browser Storage</span>
                   </span>
                 </div>
                 <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] text-sky-200/80">

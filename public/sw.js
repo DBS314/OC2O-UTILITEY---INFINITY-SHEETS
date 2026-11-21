@@ -1,10 +1,10 @@
-const CACHE_NAME = 'oc20-board-v2';
+const CACHE_NAME = 'oc20-infinity-sheets-v3';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) =>
-      cache.addAll(['/', '/index.html', '/manifest.webmanifest', '/brand-logo.png'])
+      cache.addAll(['./', './index.html', './manifest.webmanifest', './brand-logo.png'])
     )
   );
 });
