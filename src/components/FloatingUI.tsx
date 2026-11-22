@@ -213,13 +213,24 @@ export const FloatingUI: React.FC<FloatingUIProps> = ({
   const pageStripRef = useRef<HTMLDivElement>(null);
   const activeTabRef = useRef<HTMLDivElement>(null);
   const [studioTab, setStudioTab] = useState<'atmosphere' | 'palettes' | 'craft'>('atmosphere');
+  const [isPipToolsOpen, setIsPipToolsOpen] = useState(false);
 
+  const isPipCompact = viewportSize.width < 680 || viewportSize.height < 460;
   const activeIndex = pages.findIndex((p) => p.id === activePage.id);
   const activePalette = resolvePalette(paletteId);
   const themeCfg = resolveThemeConfig(activePage.theme);
   const activeHarmonicIdx =
     ((colorSequence % activePalette.nodeCycle.length) + activePalette.nodeCycle.length) %
     activePalette.nodeCycle.length;
+
+  const allToolsFlat = TOOL_GROUPS.flat();
+  const activeToolMeta = allToolsFlat.find((t) => t.id === activeTool) || allToolsFlat[0];
+  const pipPrimaryTools = allToolsFlat.filter((t) =>
+    ['select', 'pen', 'rectangle', 'arrow', 'text', 'code', 'sticky'].includes(t.id)
+  );
+  const pipMoreTools = allToolsFlat.filter(
+    (t) => !['select', 'pen', 'rectangle', 'arrow', 'text', 'code', 'sticky'].includes(t.id)
+  );
 
   useEffect(() => {
     const strip = pageStripRef.current;
@@ -260,6 +271,516 @@ export const FloatingUI: React.FC<FloatingUIProps> = ({
           <Eye size={13} />
           <span>Show UI</span>
         </button>
+      </div>
+    );
+  }
+
+  if (isPipCompact) {
+    const activeHarmonicColor = activePalette.nodeCycle[activeHarmonicIdx] || '#0A84FF';
+
+    return (
+      <div className="pointer-events-none fixed inset-0 z-40">
+        {/* PIP COMPACT TOP BAR: Single Ultra-Slim Full-Width Unified Bar (Zero Overlap) */}
+        <div
+          onPointerDown={stopEvents}
+          onWheel={stopEvents}
+          className={`pointer-events-auto fixed top-2 left-2 right-2 z-40 flex items-center justify-between gap-1 px-2 py-1 rounded-2xl transition-all ${appleCapsule}`}
+        >
+          {/* Left: OC20 Hub + Sheet Switcher */}
+          <div className="flex items-center gap-1 min-w-0">
+            <button
+              type="button"
+              onClick={onOpenOverview}
+              title="OC20 Utility — Infinity Sheets Hub (G)"
+              aria-label="OC20 Landing Hub"
+              className="flex items-center justify-center px-1.5 py-0.5 rounded-full bg-white shadow-sm ring-1 ring-white/60 shrink-0 hover:scale-105 transition"
+            >
+              <img
+                src="./brand-logo.png"
+                alt="OC20"
+                className="h-3 w-auto object-contain block"
+              />
+            </button>
+
+            <div className="flex items-center gap-0.5 rounded-full bg-current/[0.06] px-1 py-0.5 shrink-0">
+              <button
+                onClick={onPrevPage}
+                disabled={activeIndex <= 0}
+                title="Previous Sheet"
+                className={`p-0.5 rounded-full disabled:opacity-25 ${appleBtn}`}
+              >
+                <ChevronLeft size={11} />
+              </button>
+              <button
+                onClick={onOpenOverview}
+                title="Switch or Manage Sheets (G)"
+                className="text-[10.5px] font-semibold px-1 max-w-[74px] truncate"
+              >
+                {activePage.title}
+              </button>
+              <button
+                onClick={onNextPage}
+                disabled={activeIndex >= pages.length - 1}
+                title="Next Sheet"
+                className={`p-0.5 rounded-full disabled:opacity-25 ${appleBtn}`}
+              >
+                <ChevronRight size={11} />
+              </button>
+              <button
+                onClick={onCreatePage}
+                title="New Infinity Sheet (Alt+N)"
+                className="p-0.5 rounded-full text-[#38BDF8] hover:bg-[#0A84FF]/20 transition"
+              >
+                <Plus size={11} />
+              </button>
+            </div>
+          </div>
+
+          {/* Right: Undo/Redo + Single Tab Color Orb + Atmosphere + Studio + More */}
+          <div className="flex items-center gap-0.5 shrink-0">
+            <button
+              onClick={onUndo}
+              disabled={!canUndo}
+              title="Undo (Ctrl+Z)"
+              className={`p-1 rounded-full disabled:opacity-25 ${appleBtn}`}
+            >
+              <Undo2 size={12} />
+            </button>
+            <button
+              onClick={onRedo}
+              disabled={!canRedo}
+              title="Redo (Ctrl+Y)"
+              className={`p-1 rounded-full disabled:opacity-25 ${appleBtn}`}
+            >
+              <Redo2 size={12} />
+            </button>
+
+            <button
+              onClick={() => onStepHarmonicColor(1)}
+              title="Next Harmonic Colour (Tab)"
+              aria-label="Step Harmonic Color"
+              className="p-1 rounded-full hover:bg-current/10 transition flex items-center justify-center"
+            >
+              <span
+                className="w-3.5 h-3.5 rounded-full ring-2 ring-white/80 shadow-sm block"
+                style={{
+                  backgroundColor: activeHarmonicColor,
+                  boxShadow: `0 0 8px ${activeHarmonicColor}`,
+                }}
+              />
+            </button>
+
+            <button
+              onClick={onCycleTheme}
+              title={`Atmosphere: ${themeCfg.label} (click to switch)`}
+              aria-label="Toggle Theme"
+              className={`p-1 rounded-full transition ${appleBtn}`}
+            >
+              <span
+                className="w-3.5 h-3.5 rounded-full border border-white/50 shadow-sm block"
+                style={{ background: themeCfg.previewGradient }}
+              />
+            </button>
+
+            <button
+              onClick={() => {
+                setIsPipToolsOpen(false);
+                onToggleStyle();
+              }}
+              title="Atmosphere, Palettes & Craft Studio"
+              aria-label="Style and Palettes"
+              className={`p-1 rounded-full transition ${
+                isStyleOpen ? 'lavish-active-tool text-white' : appleBtn
+              }`}
+            >
+              <Palette size={12.5} />
+            </button>
+
+            <button
+              onClick={() => {
+                setIsPipToolsOpen(false);
+                onToggleActions();
+              }}
+              title="Export, Share & Actions"
+              aria-label="More Actions"
+              className={`p-1 rounded-full transition ${
+                isActionsOpen ? 'lavish-active-tool text-white' : appleBtn
+              }`}
+            >
+              <MoreHorizontal size={12.5} />
+            </button>
+          </div>
+        </div>
+
+        {/* PIP Studio Popover */}
+        {isStyleOpen && (
+          <div
+            onPointerDown={stopEvents}
+            onWheel={stopEvents}
+            className={`pointer-events-auto fixed right-2 top-12 w-[min(276px,calc(100vw-16px))] max-h-[calc(100vh-110px)] overflow-y-auto thin-scrollbar rounded-3xl p-2.5 z-50 space-y-2.5 text-xs ${applePopover}`}
+          >
+            <div
+              className={`grid grid-cols-3 gap-1 p-1 rounded-2xl ${
+                themeCfg.isDark ? 'bg-black/35 border border-white/10' : 'bg-black/[0.06] border border-black/10'
+              }`}
+            >
+              {(
+                [
+                  { id: 'atmosphere', label: 'Theme' },
+                  { id: 'palettes', label: 'Colors' },
+                  { id: 'craft', label: 'Craft' },
+                ] as const
+              ).map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setStudioTab(tab.id)}
+                  className={`py-1 rounded-xl text-[10.5px] font-semibold transition-all ${
+                    studioTab === tab.id
+                      ? 'lavish-active-tool text-white shadow-sm'
+                      : 'opacity-70 hover:opacity-100'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {studioTab === 'atmosphere' && (
+              <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-1.5">
+                  {CORE_THEMES.map((t) => {
+                    const cfg = THEME_CONFIGS[t];
+                    const isSelected = resolveThemeConfig(activePage.theme).id === t;
+                    return (
+                      <button
+                        key={t}
+                        onClick={() => onUpdatePageMeta({ theme: t })}
+                        className={`flex items-center gap-1.5 p-1.5 rounded-xl border text-left transition ${
+                          isSelected
+                            ? 'bg-gradient-to-r from-[#0A84FF]/25 to-[#5E5CE6]/25 border-[#38BDF8]'
+                            : themeCfg.isDark
+                              ? 'bg-white/[0.04] border-white/10'
+                              : 'bg-black/[0.03] border-black/10'
+                        }`}
+                      >
+                        <span
+                          className="w-5 h-5 rounded-lg border border-white/40 shrink-0"
+                          style={{ background: cfg.previewGradient }}
+                        />
+                        <span className="text-[10.5px] font-semibold truncate">{cfg.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="grid grid-cols-4 gap-1">
+                  {(['dots', 'grid', 'cross', 'none'] as GridType[]).map((g) => (
+                    <button
+                      key={g}
+                      onClick={() => onUpdatePageMeta({ grid: g })}
+                      className={`py-1 rounded-xl border text-[10px] capitalize ${
+                        activePage.grid === g
+                          ? 'lavish-active-tool border-transparent text-white font-semibold'
+                          : themeCfg.isDark
+                            ? 'bg-white/5 border-white/10'
+                            : 'bg-black/[0.04] border-black/10'
+                      }`}
+                    >
+                      {g}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {studioTab === 'palettes' && (
+              <div className="space-y-1.5">
+                {CORE_PALETTES.map((pid) => {
+                  const pal = VARIABLE_PALETTES[pid];
+                  const selected = resolvePalette(paletteId).id === pid;
+                  return (
+                    <button
+                      key={pid}
+                      onClick={() => onSelectPalette(pid)}
+                      className={`w-full flex items-center justify-between gap-2 px-2 py-1.5 rounded-xl border text-left transition ${
+                        selected
+                          ? 'bg-gradient-to-r from-[#0A84FF]/25 to-[#5E5CE6]/25 border-[#38BDF8]'
+                          : themeCfg.isDark
+                            ? 'bg-white/[0.04] border-white/10'
+                            : 'bg-black/[0.03] border-black/10'
+                      }`}
+                    >
+                      <span className="text-[10.5px] font-semibold truncate">{pal.name}</span>
+                      <div className="flex items-center gap-1 shrink-0">
+                        {pal.nodeCycle.slice(0, 5).map((col) => (
+                          <span
+                            key={col}
+                            className="w-2.5 h-2.5 rounded-full border border-white/30"
+                            style={{ backgroundColor: col }}
+                          />
+                        ))}
+                      </div>
+                    </button>
+                  );
+                })}
+                <button
+                  onClick={onHarmonizePage}
+                  className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-xl lavish-active-tool text-white font-semibold text-[10.5px]"
+                >
+                  <Wand2 size={12} />
+                  <span>Harmonize Sheet</span>
+                </button>
+              </div>
+            )}
+
+            {studioTab === 'craft' && (
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {STROKE_PALETTE.map((c) => (
+                    <button
+                      key={c}
+                      onClick={() => onUpdateStyle({ strokeColor: c })}
+                      style={{ backgroundColor: c }}
+                      className={`w-4 h-4 rounded-full border ${
+                        styleConfig.strokeColor === c ? 'ring-2 ring-[#38BDF8] scale-110' : 'border-white/25'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <div className="grid grid-cols-4 gap-1">
+                  {(['none', 'semi', 'hachure', 'solid'] as FillStyle[]).map((fs) => (
+                    <button
+                      key={fs}
+                      onClick={() => onUpdateStyle({ fillStyle: fs })}
+                      className={`py-1 rounded-xl border text-[10px] capitalize ${
+                        styleConfig.fillStyle === fs
+                          ? 'lavish-active-tool border-transparent text-white font-semibold'
+                          : themeCfg.isDark
+                            ? 'bg-white/5 border-white/10'
+                            : 'bg-black/[0.04] border-black/10'
+                      }`}
+                    >
+                      {fs === 'semi' ? 'Glass' : fs}
+                    </button>
+                  ))}
+                </div>
+                <div className="grid grid-cols-4 gap-1">
+                  {(
+                    [
+                      { id: 'sans', label: 'SF Pro' },
+                      { id: 'rounded', label: 'Round' },
+                      { id: 'serif', label: 'NY' },
+                      { id: 'mono', label: 'Mono' },
+                    ] as Array<{ id: FontFamily; label: string }>
+                  ).map((ff) => (
+                    <button
+                      key={ff.id}
+                      onClick={() => onUpdateStyle({ fontFamily: ff.id })}
+                      className={`py-1 rounded-xl border text-[10px] ${
+                        styleConfig.fontFamily === ff.id
+                          ? 'lavish-active-tool border-transparent text-white font-semibold'
+                          : themeCfg.isDark
+                            ? 'bg-white/5 border-white/10'
+                            : 'bg-black/[0.04] border-black/10'
+                      }`}
+                    >
+                      {ff.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* PIP Actions Popover */}
+        {isActionsOpen && (
+          <div
+            onPointerDown={stopEvents}
+            onWheel={stopEvents}
+            className={`pointer-events-auto fixed right-2 top-12 w-52 max-h-[calc(100vh-110px)] overflow-y-auto thin-scrollbar rounded-2xl p-1.5 z-50 text-xs space-y-0.5 ${applePopover}`}
+          >
+            <button
+              onClick={() => {
+                onOpenCommandPalette();
+                onToggleActions();
+              }}
+              className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-current/10 transition text-left"
+            >
+              <Search size={13} className="text-sky-400" />
+              <span>Spotlight Search (⌘K)</span>
+            </button>
+            <button
+              onClick={() => {
+                navigator.clipboard?.writeText(window.location.href).catch(() => {});
+                onToggleActions();
+              }}
+              className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-sky-300 hover:bg-[#0A84FF]/15 transition text-left font-semibold"
+            >
+              <Sparkles size={13} />
+              <span>Copy Shareable Link</span>
+            </button>
+            <div className="h-px bg-current opacity-10 my-1" />
+            <button
+              onClick={onExportPNG}
+              className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-current/10 transition text-left"
+            >
+              <ImageIcon size={13} className="text-sky-400" />
+              <span>Export PNG</span>
+            </button>
+            <button
+              onClick={onExportSVG}
+              className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-current/10 transition text-left"
+            >
+              <Download size={13} className="text-indigo-400" />
+              <span>Export SVG</span>
+            </button>
+            <button
+              onClick={onBackupJSON}
+              className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-current/10 transition text-left"
+            >
+              <FileJson size={13} className="text-emerald-400" />
+              <span>Backup JSON</span>
+            </button>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-current/10 transition text-left"
+            >
+              <Upload size={13} className="text-amber-400" />
+              <span>Restore Backup</span>
+            </button>
+            <div className="h-px bg-current opacity-10 my-1" />
+            <button
+              onClick={onClearPage}
+              className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-rose-400 hover:bg-rose-500/15 transition text-left"
+            >
+              <Trash2 size={13} />
+              <span>Clear Sheet</span>
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".json,application/json"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) onRestoreJSON(file);
+                e.target.value = '';
+              }}
+            />
+          </div>
+        )}
+
+        {/* PIP Expanded Extra Tools Tray */}
+        {isPipToolsOpen && (
+          <div
+            onPointerDown={stopEvents}
+            onWheel={stopEvents}
+            className={`pointer-events-auto fixed bottom-12 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 px-2 py-1.5 rounded-2xl ${applePopover}`}
+          >
+            {pipMoreTools.map((t) => {
+              const active = activeTool === t.id;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => {
+                    onSelectTool(t.id);
+                    setIsPipToolsOpen(false);
+                  }}
+                  title={`${t.label} (${t.shortcut})`}
+                  aria-label={t.label}
+                  className={`w-7 h-7 rounded-xl flex items-center justify-center transition ${
+                    active ? 'lavish-active-tool text-white' : appleBtn
+                  }`}
+                >
+                  {t.icon}
+                </button>
+              );
+            })}
+            <div className="h-4 w-px bg-current opacity-15 mx-0.5" />
+            <button
+              onClick={onToggleToolLock}
+              title={isToolLocked ? 'Unlock Tool (Q)' : 'Lock Tool (Q)'}
+              className={`w-7 h-7 rounded-xl flex items-center justify-center transition ${
+                isToolLocked ? 'bg-[#FF9F0A]/25 text-[#FF9F0A]' : appleBtn
+              }`}
+            >
+              {isToolLocked ? <Lock size={12.5} /> : <Unlock size={12.5} />}
+            </button>
+          </div>
+        )}
+
+        {/* PIP COMPACT BOTTOM BAR: Single Unified Dock (7 Core Tools + More Tools + Zoom + Hide UI) */}
+        <div
+          onPointerDown={stopEvents}
+          onWheel={stopEvents}
+          className={`pointer-events-auto fixed bottom-2 left-2 right-2 z-40 flex items-center justify-between gap-1 px-2 py-1 rounded-2xl transition-all ${appleCapsule}`}
+        >
+          {/* Core 7 Tools + More Tools Popover Trigger */}
+          <div className="flex items-center gap-0.5">
+            {pipPrimaryTools.map((t) => {
+              const active = activeTool === t.id;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => {
+                    onSelectTool(t.id);
+                    setIsPipToolsOpen(false);
+                  }}
+                  title={`${t.label} (${t.shortcut})`}
+                  aria-label={t.label}
+                  className={`relative w-7 h-7 rounded-xl flex items-center justify-center transition-all ${
+                    active ? 'lavish-active-tool text-white scale-105' : appleBtn
+                  }`}
+                >
+                  {t.icon}
+                </button>
+              );
+            })}
+
+            <button
+              onClick={() => setIsPipToolsOpen((v) => !v)}
+              title={
+                pipMoreTools.some((t) => t.id === activeTool)
+                  ? `Active: ${activeToolMeta.label} — click for more tools`
+                  : 'More Tools (Pan, Highlighter, Eraser, Circle, Diamond, Line, Image, Laser)'
+              }
+              aria-label="More Tools"
+              className={`w-7 h-7 rounded-xl flex items-center justify-center transition-all ${
+                isPipToolsOpen || pipMoreTools.some((t) => t.id === activeTool)
+                  ? 'lavish-active-tool text-white'
+                  : appleBtn
+              }`}
+            >
+              {pipMoreTools.some((t) => t.id === activeTool) ? activeToolMeta.icon : <Plus size={13.5} />}
+            </button>
+          </div>
+
+          {/* Right Micro-Controls: Zoom % (Reset/Fit) + Zen Mode */}
+          <div className="flex items-center gap-0.5 shrink-0">
+            <button
+              onClick={onResetZoom}
+              title="Reset Zoom to 100%"
+              className={`px-1.5 py-0.5 rounded-lg font-mono text-[10px] font-semibold transition ${appleBtn}`}
+            >
+              {Math.round(activePage.camera.zoom * 100)}%
+            </button>
+            <button
+              onClick={onFitToContent}
+              title="Fit Content (Shift+1)"
+              className="p-1 rounded-lg text-[#38BDF8] hover:bg-[#0A84FF]/15 transition"
+            >
+              <Maximize2 size={12} />
+            </button>
+            <button
+              onClick={onToggleZenMode}
+              title="Hide UI (Z)"
+              className={`p-1 rounded-lg transition ${appleBtn}`}
+            >
+              <EyeOff size={12} />
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
