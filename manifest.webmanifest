@@ -1,0 +1,17 @@
+{
+  "name": "OC2O UTILITY - INFINITY SHEETS",
+  "short_name": "Infinity Sheets",
+  "description": "From OC20 Utility Tools (OC2O.CO) — Offline Apple-designed infinite canvas sheets for math, Visio diagrams, code cards, and images.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#08101d",
+  "theme_color": "#08101d",
+  "icons": [
+    {
+      "src": "./brand-logo.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
