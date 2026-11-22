@@ -126,14 +126,14 @@ export const SelectionInspector: React.FC<SelectionInspectorProps> = ({
         left: `${clampedCenterX}px`,
         top: `${safeTop}px`,
         transform: 'translateX(-50%)',
-        maxWidth: `${Math.max(260, viewportSize.width - 20)}px`,
+        maxWidth: `${Math.max(260, viewportSize.width - 16)}px`,
       }}
-      className={`fixed z-30 flex items-center gap-1 px-2.5 py-1.5 rounded-2xl text-[11px] overflow-x-auto no-scrollbar transition-all ${surfaceClass}`}
+      className={`fixed z-30 flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] overflow-x-auto no-scrollbar transition-all ${surfaceClass}`}
     >
-      {/* 1. Direct Jewel Harmonic Color Orbs on Selection Inspector */}
+      {/* 1. Direct Harmonic Color Swatches on Selection Inspector */}
       {element.type !== 'image' && (
         <>
-          <div className="flex items-center gap-1 pr-0.5 shrink-0" title="Click to apply harmonic colour (or press Tab)">
+          <div className="flex items-center gap-1 pr-0.5 shrink-0" title="Click to apply color (or press Tab)">
             {palette.nodeCycle.slice(0, 5).map((col) => {
               const active = element.strokeColor.toLowerCase() === col.toLowerCase();
               return (
@@ -141,14 +141,11 @@ export const SelectionInspector: React.FC<SelectionInspectorProps> = ({
                   key={col}
                   type="button"
                   onClick={() => onApplyColor(col)}
-                  style={{
-                    backgroundColor: col,
-                    boxShadow: active ? `0 0 8px ${col}` : undefined,
-                  }}
-                  className={`rounded-full transition-all ${
+                  style={{ backgroundColor: col }}
+                  className={`rounded-sm transition ${
                     active
-                      ? 'w-3.5 h-3.5 ring-2 ring-white scale-110'
-                      : 'w-2.5 h-2.5 opacity-75 hover:opacity-100 hover:scale-110'
+                      ? 'w-3.5 h-3.5 ring-1 ring-offset-1 ring-[#007AFF]'
+                      : 'w-2.5 h-2.5 opacity-75 hover:opacity-100'
                   }`}
                 />
               );

@@ -107,7 +107,7 @@ export function drawCanvasBackground(
   ctx.fillStyle = baseGrad;
   ctx.fillRect(0, 0, width, height);
 
-  // Atmospheric ambient light pools
+  // Atmospheric ambient light pools (kept whisper-subtle)
   const maxDim = Math.max(width, height);
   for (const glow of themeCfg.ambientGlows || []) {
     const cx = width * glow.xRatio;
@@ -118,25 +118,6 @@ export function drawCanvasBackground(
     radGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
     ctx.fillStyle = radGrad;
     ctx.fillRect(0, 0, width, height);
-  }
-
-  // Subtle drifting crystalline winter snow motes when Nordic Winter theme is active
-  if (themeCfg.id === 'winter') {
-    const now = performance.now() * 0.00025;
-    const count = 34;
-    for (let i = 0; i < count; i++) {
-      const seedX = ((i * 137.5) % 100) / 100;
-      const seedY = ((i * 293.7) % 100) / 100;
-      const driftX = Math.sin(now * 2.1 + i * 1.3) * 18;
-      const fallY = ((seedY + now * (0.4 + (i % 4) * 0.14)) % 1) * height;
-      const px = (seedX * width + driftX + width) % width;
-      const radius = 0.8 + (i % 3) * 0.55;
-      const alpha = 0.10 + (i % 4) * 0.045;
-      ctx.fillStyle = `rgba(224, 242, 254, ${alpha.toFixed(3)})`;
-      ctx.beginPath();
-      ctx.arc(px, fallY, radius, 0, Math.PI * 2);
-      ctx.fill();
-    }
   }
 
   ctx.restore();
@@ -317,29 +298,14 @@ function applyFill(
   }
   if (element.fillStyle === 'solid') {
     ctx.save();
-    ctx.shadowColor = hexToRgba(element.fillColor, 0.28);
-    ctx.shadowBlur = 18;
-    ctx.shadowOffsetY = 6;
     pathFn();
     ctx.fillStyle = element.fillColor;
     ctx.fill();
     ctx.restore();
   } else if (element.fillStyle === 'semi') {
     ctx.save();
-    ctx.shadowColor = hexToRgba(element.fillColor, 0.22);
-    ctx.shadowBlur = 20;
-    ctx.shadowOffsetY = 6;
     pathFn();
-    const grad = ctx.createLinearGradient(
-      bounds.x,
-      bounds.y,
-      bounds.x + bounds.width,
-      bounds.y + bounds.height
-    );
-    grad.addColorStop(0, hexToRgba(element.fillColor, 0.28));
-    grad.addColorStop(0.5, hexToRgba(element.fillColor, 0.16));
-    grad.addColorStop(1, hexToRgba(element.fillColor, 0.08));
-    ctx.fillStyle = grad;
+    ctx.fillStyle = hexToRgba(element.fillColor, 0.14);
     ctx.fill();
     ctx.restore();
   } else if (element.fillStyle === 'hachure') {
